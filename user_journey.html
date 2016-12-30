@@ -1,146 +1,144 @@
 <html>
-	<head>
-		<title>BMTC Guide</title>
-		<link rel="manifest" href="/manifest.json">
-		<meta http-equiv=X-UA-Compatible content="IE=edge">
-    <meta name=description content="BMTC Guide - Provide Users with offline access to Route Information">
-    <meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
-    <meta name="theme-color" content="#0288d1">
-    <meta name="msapplication-TileColor" content="#0288d1">
-    <meta name="msapplication-TileImage" content="/img/Bmtc_logo.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BMTC Guide">
-    <meta name="application-name" content="BMTC Guide">
-    <link rel="stylesheet" href="./css/stylesheet.css">
+    <head>
+	<title>BMTC Guide</title>
+	<link rel="manifest" href="/manifest.json">
+	<meta http-equiv=X-UA-Compatible content="IE=edge">
+	<meta name=description content="BMTC Guide - Provide Users with offline access to Route Information">
+	<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="theme-color" content="#0288d1">
+	<meta name="msapplication-TileColor" content="#0288d1">
+	<meta name="msapplication-TileImage" content="/img/Bmtc_logo.png">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="BMTC Guide">
+	<meta name="application-name" content="BMTC Guide">
+	<link rel="stylesheet" href="./css/stylesheet.css">
   	<link rel="stylesheet" href="./css/style.css">
   	<link rel="stylesheet" href="./css/material.min.css">
-		<script src="./js/material.min.js"></script>
-		<link rel="stylesheet" href="./css/material_icons_stylesheet.css">
-		<script type="text/javascript" src="./js/jquery.js"></script>
-		<!-- <script type="text/javascript" src="./js/coordinates.js"/> -->
-		<style type="text/css">
-			.demo-card-wide.mdl-card {
-			  width: 512px;
-			}
-			.demo-card-wide > .mdl-card__title {
-			  color: #fff;
-			  height: 1s76px;
-			}
-			.demo-card-wide > .mdl-card__menu {
-			  color: #fff;
-			}
-			#fixed_header {
+	<script src="./js/material.min.js"></script>
+	<link rel="stylesheet" href="./css/material_icons_stylesheet.css">
+	<script type="text/javascript" src="./js/jquery.js"></script>
+	<!-- <script type="text/javascript" src="./js/coordinates.js"/> -->
+	<style type="text/css">
+		.demo-card-wide.mdl-card {
+		  width: 512px;
+		}
+		.demo-card-wide > .mdl-card__title {
+		  color: #fff;
+		  height: 1s76px;
+		}
+		.demo-card-wide > .mdl-card__menu {
+		  color: #fff;
+		}
+		#fixed_header {
 		    position: fixed;
 		    top: 50px;
 		    height: 70px;
 		    width: 100%;
-				background: white;
-				text-align: center;
-			}
-		</style>
-	</head>
-	<body>
-		<script type="text/javascript">
-
+		    background: white;
+		    text-align: center;
+		}
+	</style>
+    </head>
+    <body>
+	<script type="text/javascript">
 		window.onload = function(){
-
-        // GET THE INFORMATION FROM LOCAL STORAGE
+        		// GET THE INFORMATION FROM LOCAL STORAGE
 	  		userSource = localStorage["userSource"];
 	  		userDestination = localStorage["userDestination"];
-				routeno = localStorage["routeno"];
-        userRoute = localStorage["userRoute"];
-        userJourney = localStorage["userJourney"];
-				var returnString = '';
+			routeno = localStorage["routeno"];
+			userRoute = localStorage["userRoute"];
+			userJourney = localStorage["userJourney"];
+			var returnString = '';
 
-        // LOAD THE INFORMTION FROM LOCAL STORAGE TO THE REQUIRED LABELS:
-				document.getElementById('lbl_userRoute').innerHTML = 'Bus No: ' + userRoute;
+        		// LOAD THE INFORMTION FROM LOCAL STORAGE TO THE REQUIRED LABELS:
+			document.getElementById('lbl_userRoute').innerHTML = 'Bus No: ' + userRoute;
 
-				// DISPLAY BUS STOPS IN LIST VIEW:
-				var container = document.querySelector('.main');
-				var listTemplate = document.querySelector('.listTemplate');
+			// DISPLAY BUS STOPS IN LIST VIEW:
+			var container = document.querySelector('.main');
+			var listTemplate = document.querySelector('.listTemplate');
 
-				busStops = userJourney.split(',');
+			busStops = userJourney.split(',');
 
-				// ITERATE OVER busStops[] TO LIST BUS STOPS ON USER JOURNEY:
-				for (var i = 0; i < busStops.length ; i++){
-					var list = listTemplate.cloneNode(true);
-					list.querySelector('.busStop').textContent = busStops[i];
-					list.removeAttribute('hidden');
-					container.appendChild(list);
+			// ITERATE OVER busStops[] TO LIST BUS STOPS ON USER JOURNEY:
+			for (var i = 0; i < busStops.length ; i++){
+				var list = listTemplate.cloneNode(true);
+				list.querySelector('.busStop').textContent = busStops[i];
+				list.removeAttribute('hidden');
+				container.appendChild(list);
+			}
+
+			// WEB WORKER TO SYNCHRONOUSLY CALL THE GOOGLE MAPS API AND GET THE COORDS, IN A SEPARATE THREAD:
+			var w;
+
+			// CHECK IF THE WEB WORKER IS SUPPORTED BY THE BROWSER:
+			if(typeof(Worker) !== "undefined") {
+				if(typeof(w) == "undefined") {
+					//w = new Worker("./js/GPSCoordinates_worker.js");
+					w = new Worker("./js/coordinates_worker.js");
 				}
 
-				// WEB WORKER TO SYNCHRONOUSLY CALL THE GOOGLE MAPS API AND GET THE COORDS, IN A SEPARATE THREAD:
-				var w;
+				// 	PASS THE busStops[] TO THE WEB WORKER AS ARGUMENT:
+				w.postMessage(userJourney);
 
-				// CHECK IF THE WEB WORKER IS SUPPORTED BY THE BROWSER:
-				if(typeof(Worker) !== "undefined") {
-					if(typeof(w) == "undefined") {
-						//w = new Worker("./js/GPSCoordinates_worker.js");
-						w = new Worker("./js/coordinates_worker.js");
-					}
+				// RECEIVE THE RESPONSE FROM WEB WORKER:
+				w.onmessage = function(event) {
+					console.log(event.data);
+					console.log('Passenger is traveling on Bus No: ' + userRoute);
+					var __coordinates = userRoute + '__coordinates';
+					localStorage[__coordinates] = event.data;
+				};
 
-					// 	PASS THE busStops[] TO THE WEB WORKER AS ARGUMENT:
-					w.postMessage(userJourney);
-
-					// RECEIVE THE RESPONSE FROM WEB WORKER:
-					w.onmessage = function(event) {
-						console.log(event.data);
-						console.log('Passenger is traveling on Bus No: ' + userRoute);
-						var __coordinates = userRoute + '__coordinates';
-						localStorage[__coordinates] = event.data;
-					};
-
-					var _logLocalStorage = userRoute + '__coordinates';
-					console.log('Logging the localStorage of user route: ' + localStorage[_logLocalStorage]);
-				}
-				else {
-					console.warn("Sorry, your browser does not support Web Workers...");
-				}
+				var _logLocalStorage = userRoute + '__coordinates';
+				console.log('Logging the localStorage of user route: ' + localStorage[_logLocalStorage]);
+			}
+			else {
+				console.warn("Sorry, your browser does not support Web Workers...");
+			}
 	  	}
 
-			// FUNCTION TO BUILD AN ARRAY FROM A STRING
-			function buildArrayFromString(string, delimitter){
-				return string.split(delimitter);
-			}
-	  </script>
+		// FUNCTION TO BUILD AN ARRAY FROM A STRING
+		function buildArrayFromString(string, delimitter){
+			return string.split(delimitter);
+		}
+	</script>
 
-		<!-- APP SHELL -->
-		<div class="app app__layout">
-			<header class="header">
-				<div class="header__icon">
-					<a href="bus_routes.html"><img src="img/back_button_2.png" alt="Back to Bus Routes page" width="28px" height="28px"></a>
-				</div>
+	<!-- APP SHELL -->
+	<div class="app app__layout">
+		<header class="header">
+			<div class="header__icon">
+				<a href="bus_routes.html"><img src="img/back_button_2.png" alt="Back to Bus Routes page" width="28px" height="28px"></a>
+			</div>
 
-				<div class="header__title" style="margin-left: 0; line-height: normal">
-						&nbsp;<font size="4"><label id="lbl_userRoute"></label></font><br/>
-				</div>
-			</header>
-		</div>
+			<div class="header__title" style="margin-left: 0; line-height: normal">
+					&nbsp;<font size="4"><label id="lbl_userRoute"></label></font><br/>
+			</div>
+		</header>
+	</div>
 
 
-		<!-- APP CONTENT -->
-		<div class="app__content" style="width:100%; margin: 47px 0px 16px 0px">
-			<br/>
-			<main class="main" style="padding: 0px 0px 0px 0px; width: 100%; background: white; box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12)">
-					<div class="listTemplate" hidden>
-						<ul class='mdl-list' style="padding: 0px;">
-							<li class="mdl-list__item" style=" padding: 0px">
-								<div style="position: relative; margin-left: 24px; margin-right: 32px; ">
-									<div style="width: 2px; height: 48px; background: #999; "></div>
-									<div style="width: 16px; height: 16px; background: #1E88E5; border-radius: 50%; position: absolute; top: 50%; transform: translateY(-50%) translateX(-50%); left: 50%;"></div>
-								</div>
-								<span class="mdl-list__item-primary-content">
-									<div class="busStop"></div>
-								</span>
-							</li>
-						</ul>
-					</div>
-			</main>
-	  </div>
-		<div class="toast__container"></div>
-		<script src="./js/app.js"></script>
-		<script src="./js/toast.js"></script>
-		<script type="text/javascript" src="./js/coordinates_worker.js"/>
-	</body>
+	<!-- APP CONTENT -->
+	<div class="app__content" style="width:100%; margin: 47px 0px 16px 0px">
+		<br/>
+		<main class="main" style="padding: 0px 0px 0px 0px; width: 100%; background: white; box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12)">
+			<div class="listTemplate" hidden>
+				<ul class='mdl-list' style="padding: 0px;">
+					<li class="mdl-list__item" style=" padding: 0px">
+						<div style="position: relative; margin-left: 24px; margin-right: 32px; ">
+							<div style="width: 2px; height: 48px; background: #999; "></div>
+							<div style="width: 16px; height: 16px; background: #1E88E5; border-radius: 50%; position: absolute; top: 50%; transform: translateY(-50%) translateX(-50%); left: 50%;"></div>
+						</div>
+						<span class="mdl-list__item-primary-content">
+							<div class="busStop"></div>
+						</span>
+					</li>
+				</ul>
+			</div>
+		</main>
+	</div>
+	<div class="toast__container"></div>
+	<script src="./js/app.js"></script>
+	<script src="./js/toast.js"></script>
+	<script type="text/javascript" src="./js/coordinates_worker.js"/>
+    </body>
 </html>
