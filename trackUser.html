@@ -1,0 +1,168 @@
+<head>
+   <html>
+
+      <script type="text/javascript">
+         var watchID;
+         var geoLoc;
+         var distance;
+         var i = 0;
+
+         function showLocation(position) {
+            var alreadyNotified = 1;
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            //Push.create("Latitude : " + latitude + " Longitude: " + longitude);
+            var today = new Date();
+            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+            // COORDINATES FOR USER'S CURRENT LOCATION:
+            console.log( time + ": " + "Latitude : " + latitude + " Longitude: " + longitude);
+
+            // COORDINATES FOR DESTINATION:
+            console.log('Logging Coordinates: ' + localStorage["destination_lat"] + ' ' + localStorage["destination_lon"] );
+
+            // CHECK IF USER IS NEAR DESTINATION:
+            distance = checkNearByBusStop(latitude, longitude, Number(localStorage["destination_lat"]), Number(localStorage["destination_lon"]));
+
+            if(distance > -1000 && distance < 1000 && alreadyNotified){ // comparison in metres
+              // USRER IS NEAR DESTINATION. HIGHLIGHT THE DESTINATION AND SEND A NOTIFICATION:
+              var roundedDistance = Math.round(distance);
+              Push.create('You\'ll reach your destination in ' + Math.round(roundedDistance) + " metres");
+              alreadyNotified = 0;
+            }
+            else{
+              // USER IS NOT NEAR DESTINATION, HIGHLIGHT THE NEARBY BUS STOP:
+              console.log('Still long way to go! Your distance till the destination is: ' + distance);
+
+              // CHECK THE NEAREST STOP AND HIGHLIGHT IT:
+              var __userRoute = localStorage["userRoute"];
+              var __logLocalStorageVariable = __userRoute + "__coordinates";
+              var __coordinates = localStorage[__logLocalStorageVariable];
+
+              var __firstCoordinate = __coordinates.split(';')[0];
+              var __firstCoordinateLatitude = __firstCoordinate.split(',')[0];
+              var __firstCoordinateLongitude = __firstCoordinate.split(',')[1];
+
+              var d = checkNearByBusStop(latitude, longitude, __firstCoordinateLatitude, __firstCoordinateLongitude);
+              console.log(d);
+
+              if(d > -1000 && d < 1000){
+                console.log('You are near ' + 'this' + ' bus stop.');
+              } else {
+                // i++;
+                // localStorage[__logLocalStorageVariable] =
+                console.log('something');
+              }
+
+            }
+
+            // CHECK USER'S NEARBY BUSSTOP:
+            //checkNearByBusStop(latitude, longitude, Number(localStorage["user_lat"]), Number(localStorage["user_lon"]));
+         }
+
+         function errorHandler(err) {
+            if(err.code == 1) {
+               alert("Error: Access is denied!");
+            }
+
+            else if( err.code == 2) {
+               alert("Error: Position is unavailable!");
+            }
+         }
+
+         function getLocationUpdate(){
+            if(navigator.geolocation){
+               // timeout at 60000 milliseconds (60 seconds)
+               //var options = {timeout:60000};
+               var options = {timeout:1}; // 0.5 sec
+               geoLoc = navigator.geolocation;
+               watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+            }
+
+            else{
+               alert("Sorry, browser does not support geolocation!");
+            }
+         }
+
+         function getLatLon(destination){
+
+           // GET LAt LON OF DESTINATION:
+
+
+         }
+
+         // CHECK USER'S NEARBY BUS STOP:
+         function checkNearByBusStop(user_lat, user_lon, dest_lat, dest_lon){
+
+           // CHECK IF THE CONVERSION TO RADIANS IS NOT DEFINED BY THE BROWSER:
+           if (typeof(Number.prototype.toRadians) === "undefined") {
+             Number.prototype.toRadians = function() {
+               return this * Math.PI / 180;
+             }
+           }
+
+           // CALCULATE THE DISTANCE BETWEEN USER AND DESTINATION:
+           var R = 6371e3; // metres
+           var userLat = user_lat.toRadians();
+           var userLon = user_lon.toRadians();
+           var diff_lat = (dest_lat - user_lat).toRadians();
+           var diff_lon = (dest_lon - user_lon).toRadians();
+
+           var a = Math.sin(diff_lat/2) * Math.sin(diff_lat/2) +
+                   Math.cos(userLat) * Math.cos(userLon) *
+                   Math.sin(diff_lon/2) * Math.sin(diff_lon/2);
+           var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+           var d = R * c;
+
+           console.log("Remaining distance between User and Destination: " + d);
+
+           return d;
+         }
+      </script>
+
+
+   </head>
+   <!-- <body onload="getLocationUpdate()"> -->
+      <!-- <form>
+         <input type="button" onclick="getLocationUpdate();" value="Watch Update"/>
+      </form> -->
+    <!-- <script src="./js/push.js"></script> -->
+   <!-- </body> -->
+
+   <body>
+     <script type="text/javascript">
+      window.onload = function(){
+        userSource = localStorage["userSource"];
+	  		userDestination = localStorage["userDestination"];
+        userJourney = localStorage["userJourney"];
+				var returnString = '';
+
+        // GENERATE THE BUS STOPS:
+        var busStops = userJourney.split(',');
+
+        // GET LAT LON FROM WEB WORKER FOR DESTINATION:
+        if(typeof(Worker) !== "undefined") {
+          if(typeof(w) == "undefined") {
+            //w = new Worker("./js/GPSCoordinates_worker.js");
+            w = new Worker("./js/getLatLon_worker.js");
+          }
+
+          // 	PASS THE busStops[] TO THE WEB WORKER AS ARGUMENT:
+					w.postMessage(userDestination);
+
+					// RECEIVE THE RESPONSE FROM WEB WORKER:
+					w.onmessage = function(event) {
+            console.log('User is traveling to: ' + userDestination + ', with coordinates as: ' + event.data);
+            localStorage["destination_lat"] = event.data.split(',')[0];
+            localStorage["destination_lon"] = event.data.split(',')[1];
+					};
+        }
+
+        // GET LOCATION UPDATE:
+        getLocationUpdate();
+      }
+     </script>
+     <script src="./js/push.js"></script>
+   </body>
+</html>

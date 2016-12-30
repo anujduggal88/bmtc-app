@@ -1,0 +1,47 @@
+{
+  "name": "BMTC Guide",
+  "short_name": "BMTC Guide",
+  "start_url": "./?utm_source=manifest",
+  "description": "BMTC app gives an improved User Experience by providing offline access to route information.",
+  "icons": [
+    {
+      "src": "/img/bmtcapp_96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/bmtcapp_144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/bmtcapp_192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/bmtcapp_256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/bmtcapp_384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/bmtcapp_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAFAFA",
+  "theme_color": "#0288d1",
+  "author": {
+    "name": "Anuj Duggal",
+    "github": "https://github.com/anujduggal88"
+  }
+}

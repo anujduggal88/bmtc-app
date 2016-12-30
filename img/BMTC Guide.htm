@@ -1,0 +1,208 @@
+
+<!-- saved from url=(0037)http://127.0.0.1:8888/bus_routes.html -->
+<html class="mdl-js"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>BMTC Guide</title>
+		<link rel="manifest" href="http://127.0.0.1:8888/manifest.json">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="BMTC Guide - Provide Users with offline access to Route Information">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#0288d1">
+    <meta name="msapplication-TileColor" content="#0288d1">
+    <meta name="msapplication-TileImage" content="/img/Bmtc_logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BMTC Guide">
+    <meta name="application-name" content="BMTC Guide">
+    <link rel="stylesheet" href="./BMTC Guide_files/stylesheet.css">
+  	<link rel="stylesheet" href="./BMTC Guide_files/style.css">
+  	<link rel="stylesheet" href="./BMTC Guide_files/material.min.css">
+		<script src="./BMTC Guide_files/material.min.js"></script>
+		<link rel="stylesheet" href="./BMTC Guide_files/material_icons_stylesheet.css">
+		<script type="text/javascript" src="./BMTC Guide_files/jquery.js"></script>
+		<style type="text/css">
+			.demo-card-wide.mdl-card {
+			  width: 512px;
+			}
+			.demo-card-wide > .mdl-card__title {
+			  color: #fff;
+			  height: 1s76px;
+			}
+			.demo-card-wide > .mdl-card__menu {
+			  color: #fff;
+			}
+		</style>
+	</head>
+	<body cz-shortcut-listen="true">
+
+		<script type="text/javascript">
+
+	  	window.onload = function(){
+				bmtc_app_url = localStorage["bmtc_app_url"];
+	  		userSource = localStorage["userSource"];
+	  		userDestination = localStorage["userDestination"];
+				routeno = localStorage["routeno"];
+
+	  		document.getElementById('lbl_source').innerHTML = userSource;
+	  		document.getElementById('lbl_destination').innerHTML = userDestination;
+
+				var cardTemplate = document.querySelector('.cardTemplate');
+				var container = document.querySelector('.main');
+				var __numberOfStops = '';
+				var __durationOfJourney = '';
+				var __busNumber = '';
+				var __distanceOfUserJourney;
+				var __speed = 0.5; // AVERAGE SPEED OF BUS IN BANGALORE (WITH NO TRAFFIC) = 0.5 km/min
+				var __time = '';
+
+				availableRoutes = routeno.split(',');
+
+				// ITERATE TO GET TIME DURATION ON USER JOURNEY:
+				for (var i = 0; i < availableRoutes.length ; i++){
+					__durationOfJourney = "durationOfJourney_" + availableRoutes[i];
+					__numberOfStops = "numberOfStops_" + availableRoutes[i];
+					stops = Number(localStorage[__numberOfStops]);
+
+					// DISTANCE OF USER JOURNEY (in km):
+					if (stops < 10){
+						__distanceOfUserJourney = stops;
+					}
+					else if(stops >= 10 && stops < 20){
+						__distanceOfUserJourney = stops - 1;
+					}
+					else if(stops >= 20 && stops < 30){
+						__distanceOfUserJourney = stops - 2;
+					}
+					else if(stops >= 30 && stops < 40){
+						__distanceOfUserJourney = stops - 3;
+					}
+					else if(stops >= 40){
+						__distanceOfUserJourney = stops - 4;
+					}
+
+					__time = Number(__distanceOfUserJourney / __speed);
+					localStorage[__durationOfJourney] = minToHrMin(__time);
+				}
+
+				// ITERATE OVER routeList[]:
+				for (var i = 0; i < availableRoutes.length ; i++){
+
+					__durationOfJourney = "durationOfJourney_" + availableRoutes[i];
+
+					// CHECK IF THE TIME DURATION IS CORRECT IN THE DATA:
+					if (localStorage[__durationOfJourney] != 'null' && localStorage[__durationOfJourney] != '1 min'){
+						var card = cardTemplate.cloneNode(true);
+						card.classList.remove('cardTemplate');
+						card.querySelector('.routeno').textContent = availableRoutes[i];
+
+						// DISPLAY NUMBER OF STOPS:
+						//__numberOfStops ;= "numberOfStops_" + availableRoutes[i];
+						// card.querySelector('.numberOfStops').textContent = localStorage[__numberOfStops] + " stops";
+
+						// DISPLAY TIME DURATION OF THE USER JOURNEY:
+						card.querySelector('.duration').textContent = localStorage[__durationOfJourney];
+						card.querySelector('.routeLink').href="user_journey.html";
+						//card.querySelector('.card .icon').classList.add('bus_black');
+						card.removeAttribute('hidden');
+						container.appendChild(card);
+					}
+					else {
+						continue;
+					}
+				}
+	  	}
+
+			function minToHrMin(minutes){
+			  var h = Math.floor(minutes / 60);
+			  var m = minutes % 60;
+
+				// RETURNING FORMATTED TIME:
+				if (h != 0 && m != 0){
+					return h + ' hour' + ' ' + m + ' min';
+				}
+				else if(h == 0){
+					return m + ' min';
+				}
+				else if (m == 0){
+					return h + ' hour';
+				}
+				else{
+					return m + ' min';
+				}
+
+			}
+	  </script>
+
+  	<!-- APP SHELL -->
+		<div class="app app__layout">
+			<header>
+				<!-- INSERT BACK BUTTON -->
+				<div class="header__icon">
+					<a href="http://127.0.0.1:8888/index.html"><img src="./BMTC Guide_files/mdl_icon_back.png" alt="Back to Index page" width="35px" height="35px"></a>
+				</div>
+
+				<div class="header__title">
+						&nbsp;<font size="4"><label id="lbl_source">Parangipalya</label> to <label id="lbl_destination">Kempegowda Bus Station/Majestic</label></font>
+				</div>
+			</header>
+		</div>
+
+		<!-- APP CONTENT -->
+		<div class="app__content">
+			<!-- <h6><label id="lbl_source"></label> - <label id="lbl_destination"></label></h6> -->
+			<!-- <hr/> -->
+			<main class="main">
+				<div class="cardTemplate demo-card-wide mdl-card__title mdl-shadow--2dp mdl-card__title--expand" hidden="">
+					<div class="mdl-spinner mdl-js-spinner is-upgraded" data-upgraded=",MaterialSpinner"><div class="mdl-spinner__layer mdl-spinner__layer-1"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-2"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-3"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-4"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div></div>
+					<!-- <div class="mdl-card__title"> -->
+					<div class="mdl-button mdl-button--icon">
+						<img src="./BMTC Guide_files/bus_black.png" alt="BMTC Bus" height="30px" width="30px">
+					</div>
+					<a class="routeLink mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="btn_startJourney(this.querySelector(&#39;.routeno&#39;).textContent);" data-upgraded=",MaterialButton,MaterialRipple">
+						<div class="routeno" style="font-size: 18px"></div>
+					<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+					<!-- <div class="numberOfStops" style="color:#808080" align="right"></div> -->
+					<!-- <div class="mdl-card__supporting-text numberOfStops" style="color:#808080" align="right"></div> -->
+					<div class="mdl-card__supporting-text duration" style="color:#808080; font-size:12px;" align="right"></div>
+				</div>
+			<div class="demo-card-wide mdl-card__title mdl-shadow--2dp mdl-card__title--expand">
+					<div class="mdl-spinner mdl-js-spinner is-upgraded" data-upgraded=",MaterialSpinner"><div class="mdl-spinner__layer mdl-spinner__layer-1"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-2"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-3"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-4"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div></div>
+					<!-- <div class="mdl-card__title"> -->
+					<div class="mdl-button mdl-button--icon">
+						<img src="./BMTC Guide_files/bus_black.png" alt="BMTC Bus" height="30px" width="30px">
+					</div>
+					<a class="routeLink mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="btn_startJourney(this.querySelector(&#39;.routeno&#39;).textContent);" data-upgraded=",MaterialButton,MaterialRipple" href="http://127.0.0.1:8888/user_journey.html">
+						<div class="routeno" style="font-size: 18px">340A</div>
+					<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+					<!-- <div class="numberOfStops" style="color:#808080" align="right"></div> -->
+					<!-- <div class="mdl-card__supporting-text numberOfStops" style="color:#808080" align="right"></div> -->
+					<div class="mdl-card__supporting-text duration" style="color:#808080; font-size:12px;" align="right">42 min</div>
+				</div><div class="demo-card-wide mdl-card__title mdl-shadow--2dp mdl-card__title--expand">
+					<div class="mdl-spinner mdl-js-spinner is-upgraded" data-upgraded=",MaterialSpinner"><div class="mdl-spinner__layer mdl-spinner__layer-1"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-2"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-3"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-4"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div></div>
+					<!-- <div class="mdl-card__title"> -->
+					<div class="mdl-button mdl-button--icon">
+						<img src="./BMTC Guide_files/bus_black.png" alt="BMTC Bus" height="30px" width="30px">
+					</div>
+					<a class="routeLink mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="btn_startJourney(this.querySelector(&#39;.routeno&#39;).textContent);" data-upgraded=",MaterialButton,MaterialRipple" href="http://127.0.0.1:8888/user_journey.html">
+						<div class="routeno" style="font-size: 18px">340AA</div>
+					<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+					<!-- <div class="numberOfStops" style="color:#808080" align="right"></div> -->
+					<!-- <div class="mdl-card__supporting-text numberOfStops" style="color:#808080" align="right"></div> -->
+					<div class="mdl-card__supporting-text duration" style="color:#808080; font-size:12px;" align="right">58 min</div>
+				</div><div class="demo-card-wide mdl-card__title mdl-shadow--2dp mdl-card__title--expand">
+					<div class="mdl-spinner mdl-js-spinner is-upgraded" data-upgraded=",MaterialSpinner"><div class="mdl-spinner__layer mdl-spinner__layer-1"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-2"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-3"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div><div class="mdl-spinner__layer mdl-spinner__layer-4"><div class="mdl-spinner__circle-clipper mdl-spinner__left"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__gap-patch"><div class="mdl-spinner__circle"></div></div><div class="mdl-spinner__circle-clipper mdl-spinner__right"><div class="mdl-spinner__circle"></div></div></div></div>
+					<!-- <div class="mdl-card__title"> -->
+					<div class="mdl-button mdl-button--icon">
+						<img src="./BMTC Guide_files/bus_black.png" alt="BMTC Bus" height="30px" width="30px">
+					</div>
+					<a class="routeLink mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="btn_startJourney(this.querySelector(&#39;.routeno&#39;).textContent);" data-upgraded=",MaterialButton,MaterialRipple" href="http://127.0.0.1:8888/user_journey.html">
+						<div class="routeno" style="font-size: 18px">348F</div>
+					<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+					<!-- <div class="numberOfStops" style="color:#808080" align="right"></div> -->
+					<!-- <div class="mdl-card__supporting-text numberOfStops" style="color:#808080" align="right"></div> -->
+					<div class="mdl-card__supporting-text duration" style="color:#808080; font-size:12px;" align="right">40 min</div>
+				</div></main>
+	  </div>
+		<script src="./BMTC Guide_files/app.js"></script>
+	
+
+</body></html>

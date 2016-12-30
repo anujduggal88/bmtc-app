@@ -1,0 +1,119 @@
+<html>
+	<head>
+		<title>BMTC Guide</title>
+		<link rel="manifest" href="/manifest.json">
+		<meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=description content="BMTC Guide - Provide Users with offline access to Route Information">
+    <meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#0288d1">
+    <meta name="msapplication-TileColor" content="#0288d1">
+    <meta name="msapplication-TileImage" content="/img/Bmtc_logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BMTC Guide">
+    <meta name="application-name" content="BMTC Guide">
+    <link rel="stylesheet" href="./css/stylesheet.css">
+  	<link rel="stylesheet" href="./css/style.css">
+  	<link rel="stylesheet" href="./css/material.min.css">
+		<script src="./js/material.min.js"></script>
+		<link rel="stylesheet" href="./css/material_icons_stylesheet.css">
+		<!-- <script type="text/javascript" src="./js/jquery.js"></script> -->
+		<link rel="stylesheet" href="./css/style_autocomplete.css">
+		<!-- <script type="text/javascript" src="./js/jquery-1.9.1.min.js"></script> -->
+		<script type="text/javascript" src="./js/jquery-3.1.1.js"></script>
+	  <script type="text/javascript" src="./js/jquery.autocomplete.min.js"></script>
+	  <script type="text/javascript" src="./js/stops-autocomplete.js"></script>
+		<script type="text/javascript" src='https://maps.googleapis.com/maps/api/js?sensor=true&libraries=places'></script>
+
+		<style media="screen">
+			/* DO NOT SCROLL THE FIRST PAGE */
+			body{
+		    position:fixed;
+			}
+		</style>
+		<style type="text/css">
+			button.align-center{
+				top:50%;
+				display:block;
+				margin:0 auto;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script type="text/javascript">
+	  	window.onload = function(){
+				localStorage["bmtc_app_url"] = "127.0.0.1:8888";
+
+				if(localStorage["userSource"] === undefined || localStorage["userDestination"] === undefined){
+					console.log('User is landing to the application for the first time');
+					// AUTO FILL SOURCE ON THE PAGE LOAD:
+					//btn_getSource();
+				}
+				else {
+					console.log('User is already in the application');
+					document.getElementById('txt_source').value = localStorage["userSource"];
+					document.getElementById('txt_destination').value = localStorage["userDestination"];
+				}
+	  	}
+		</script>
+
+		<!-- APP SHELL -->
+		<div class="app app__layout">
+			<header class="header">
+				<div class="header__title">
+						&nbsp; <h5> <b>BMTC Guide</b> </h5>
+				</div>
+			</header>
+		</div>
+
+
+		<!-- APP CONTENT -->
+		<div class="app__content" style="width: 100%;">
+			<div id="searchfield" style="padding: 16px 16px 48px 16px; width: 100%; background: white">
+					<div class="searchfield-row">
+						<img class="searchfield-row-icon" src="./img/source.png" onclick="btn_getSource()" alt="Source" width="16px" height="16px">
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+								<input class="mdl-textfield__input" type="text" id="txt_source" autocomplete="off" autofocus="on" placeholder="Where from">
+						</div>
+					</div>
+					<div class="searchfield-row swap-row">
+							<img src="./img/swap_alternate.png" alt="Swap" width="30px" height="30px" onclick="swapText()">
+					</div>
+					<div class="searchfield-row">
+						<img class="searchfield-row-icon" src="./img/destination.png" alt="Destination" width="16px" height="16px">
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+								<input class="mdl-textfield__input" type="text" id="txt_destination" autocomplete="off" placeholder="Where to">
+						</div>
+					</div>
+					<br><br>
+					<div class="searchfield-row" style="justify-content: center; -webkit-justify-content: center">
+						<p class="custom__button custom__button-bg">
+							<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent blue-button" onclick="btn_GuideMe()">Get Bus Routes</button>
+						</p>
+					</div>
+				<div class="mdl-spinner mdl-js-spinner" style="width: 36px; height: 36px; margin: 0 auto"></div>
+			</div>
+		</div>
+
+		<!-- TOAST -->
+		<div class="toast__container"></div>
+		<div id="map" style="height:0px;"></div>
+
+	  <!-- SERVICE WORKER REGISTRATION -->
+		<script type="text/javascript">
+			// REGISTER SERVICE WORKER
+			if(navigator.serviceWorker){
+				navigator.serviceWorker.register('./service-worker.js',
+					{scope: './'}).then(function(reg){
+					console.info('[REGISTER] Service Worker Registered');
+				}).catch(function(err){
+					console.warn('[REGISTER] Failed to register Service Worker: ' + err.message);
+				});
+			}
+		</script>
+		<script src="./js/app.js"></script>
+		<script src="./js/toast.js"></script>
+		<script src="./js/push.js"></script>
+	</body>
+</html>
