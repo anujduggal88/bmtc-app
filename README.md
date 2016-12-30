@@ -1,7 +1,7 @@
 #BMTC App
-*BMTC App provides offline access to route information thereby giving a great User Experience to passengers traveling on local buses across Bangalore, with no install required. It is reliable, fast, engaging and is extremely useful in regions where networks are slow, expensive or poorly available.
+BMTC App provides offline access to route information thereby giving a great User Experience to passengers traveling on local buses across Bangalore, with no install required. It is reliable, fast, engaging and is extremely useful in regions where networks are slow, expensive or poorly available.
 
-This repository is created to open source the code and make it available for further development. It has (almost) no dependencies and one can start by cloning this repository.*
+This repository is created to open source the code and make it available for further development. It has (almost) no dependencies and one can start by cloning this repository.
 
 
 ##1. Setup
