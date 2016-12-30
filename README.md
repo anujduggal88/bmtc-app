@@ -51,9 +51,7 @@ That's it! Your app is up and running.
 
 
 ##5. Development and Contribution
-Want to contribute? Great!
-
-You can contribute to this by:
+Want to contribute? Great! You can contribute to this by:
 * Filing issues
 * Contributing Code
 * Contributing Feature
