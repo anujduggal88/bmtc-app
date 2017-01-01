@@ -51,12 +51,12 @@ That's it! Your app is up and running.
 
 
 ##5. Development and Contribution
-Want to contribute? Great! You can contribute to this by:
+Want to contribute? Great! You can do this by:
 * Filing issues
 * Contributing Code
 * Contributing Feature
 
-Please contact the author for more information on contributing to pwa-codelabs.
+Please contact the author for more information on contributing to bmtc-app.
 
 
 ##6. License
